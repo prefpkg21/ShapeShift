@@ -13,21 +13,42 @@ class GameViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        if let scene = GameScene(fileNamed:"GameScene") {
-            // Configure the view.
-            let skView = self.view as! SKView
-            skView.showsFPS = false
-            skView.showsNodeCount = true
+        // Configure the view.
+        let skView = self.view as! SKView
+        let defaults = NSUserDefaults.standardUserDefaults()
+        let needsTutorial = defaults.valueForKey("TeachMe") as! Bool
+        
+        /* Sprite Kit applies additional optimizations to improve rendering performance */
+        skView.ignoresSiblingOrder = true
+        if let scene = shouldDisplayTutorial(needsTutorial: needsTutorial){
             
-            /* Sprite Kit applies additional optimizations to improve rendering performance */
-            skView.ignoresSiblingOrder = false
-            
-            /* Set the scale mode to scale to fit the window */
-            scene.scaleMode = .AspectFill
-            
-            skView.presentScene(scene)
+        
+        /* Set the scale mode to scale to fit the window */
+        scene.scaleMode = .AspectFit
+        
+        skView.presentScene(scene)
         }
+        
+    }
+    func shouldDisplayTutorial (needsTutorial tutorial: Bool)->SKScene? {
+      
+        
+        if tutorial {
+            
+            guard let scene = SwipeTutorial(fileNamed: "SwipeTutorial") else {
+                print("Error Loading File")
+                return nil
+            }
+            return scene
+            
+        } else {
+            
+            guard let scene = MainMenu(fileNamed:"MainMenu") else {
+                return nil
+            }
+            return scene
+        }
+
     }
 
     override func shouldAutorotate() -> Bool {
@@ -35,11 +56,7 @@ class GameViewController: UIViewController {
     }
 
     override func supportedInterfaceOrientations() -> UIInterfaceOrientationMask {
-        if UIDevice.currentDevice().userInterfaceIdiom == .Phone {
-            return .Portrait
-        } else {
-            return .All
-        }
+        return .Portrait
     }
 
     override func didReceiveMemoryWarning() {
